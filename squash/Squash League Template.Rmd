@@ -1,0 +1,190 @@
+---
+title: "Squash League Standings"
+author: "SFU Department of Statistics and Actuarial Science"
+date: "Spring 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+rm(list=ls())
+
+library(xtable)
+library(BradleyTerry2)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+player_data <- as.data.frame(matrix(NA, nrow=20, ncol=2))
+colnames(player_data) <- c("First Name", "Last Name")
+player_data[1, ] <- list("Nikola", "Surjanovic")
+# player_data[2, ] <- list("Dani", "Chu")
+player_data[2, ] <- list("Nate", "Sandholtz")
+player_data[3, ] <- list("Jacob", "Mortensen")
+player_data[4, ] <- list("Peter", "Tea")
+player_data[5, ] <- list("James", "Thomson")
+player_data[6, ] <- list("Barinder", "Thind")
+player_data[7, ] <- list("Matthew", "Reyers")
+player_data[8, ] <- list("Renny", "Doig")
+player_data[9, ] <- list("Lloyd", "Elliott")
+player_data[10, ] <- list("Neil", "Faught")
+player_data[11, ] <- list("Harsha", "Perera")
+player_data[12, ] <- list("Claudine", "Tu")
+player_data[13, ] <- list("Pulindu", "Ratnasekera")
+player_data[14, ] <- list("Louis", "Arsenault-Mahjoubi")
+player_data[15, ] <- list("Robert", "N")
+player_data <- player_data[1:(which.max(is.na(player_data[,1]))-1), ]
+
+
+
+match_data <- as.data.frame(matrix(NA, nrow=100, ncol=5))
+colnames(match_data) <- c("player1", "player2", "winner", "score", "date")
+
+# Spring 2020 Match Data
+match_data[1, ] <- list("Matthew Reyers", "Peter Tea", 1, "11-2, 11-3, 11-0", "17/01/2020")
+match_data[2, ] <- list("Matthew Reyers", "Louis Arsenault-Mahjoubi", 1, "11-2, 11-5", "17/01/2020")
+match_data[3, ] <- list("Nikola Surjanovic", "Louis Arsenault-Mahjoubi", 2, "2-0 (sets)", "24/01/2020")
+match_data[4, ] <- list("Peter Tea", "Louis Arsenault-Mahjoubi", 2, "2-0 (sets)", "24/01/2020")
+match_data[5, ] <- list("Pulindu Ratnasekera", "Louis Arsenault-Mahjoubi", 2, "2-1 (sets)", "24/01/2020")
+match_data[6, ] <- list("Robert N", "Louis Arsenault-Mahjoubi", 1, "1-0 (sets)", "24/01/2020")
+# match_data[7, ] <- list("Nikola Surjanovic", "Renny Doig", 1, "1-0 (sets)", "24/01/2020")
+match_data[7, ] <- list("Nikola Surjanovic", "Matthew Reyers", 2, "11-3, 11-5", "24/01/2020")
+match_data[8, ] <- list("Nikola Surjanovic", "Pulindu Ratnasekera", 1, "11-2", "24/01/2020")
+match_data[9, ] <- list("Harsha Perera", "Pulindu Ratnasekera", 1, "11-1, 11-0, 11-1, 11-3", "07/02/2020")
+match_data[10, ] <- list("Harsha Perera", "Louis Arsenault-Mahjoubi", 1, "11-0, 11-2, 11-5", "07/02/2020")
+match_data[11, ] <- list("Harsha Perera", "Nikola Surjanovic", 1, "11-0, 11-5", "07/02/2020")
+match_data[12, ] <- list("Nikola Surjanovic", "Robyn R", 1, "15-13", "07/02/2020")
+match_data[13, ] <- list("Nikola Surjanovic", "Louis Arsenault-Mahjoubi", 2, "1-2 (sets)", "07/02/2020")
+match_data[14, ] <- list("Nikola Surjanovic", "Louis Arsenault-Mahjoubi", 2, "1-2 (sets)", "07/02/2020")
+match_data[15, ] <- list("Louis Arsenault-Mahjoubi", "Pulindu Ratnasekera", 1, "2-1 (sets)", "07/02/2020")
+match_data[16, ] <- list("Pulindu Ratnasekera","Peter Tea", 1, "11-6, 5-11, 11-8", "14/02/2020")
+match_data[17, ] <- list("Pulindu Ratnasekera","Harsha Perera", 2, "11-1, 11-2", "28/02/2020")
+match_data[18, ] <- list("Nikola Surjanovic","Harsha Perera", 2, "11-4, 11-8, 11-2", "28/02/2020")
+match_data[19, ] <- list("Matthew Reyers","Harsha Perera", 2, "11-4, 11-4", "28/02/2020")
+match_data[20, ] <- list("Matthew Reyers","Nikola Surjanovic", 1, "11-2, 12-14, 11-8", "28/02/2020")
+match_data[21, ] <- list("Pulindu Ratnasekera","Nikola Surjanovic", 2, "2-0 (sets)", "28/02/2020")
+# match_data[22, ] <- list("Charith","Nikola Surjanovic", 2, "1-0 (sets)", "28/02/2020")
+
+match_data <- match_data[1:(which.max(is.na(match_data[,1]))-1), ]
+
+
+
+
+
+
+# Fall 2019 Match Data
+# match_data[1, ] <- list("Harsha Perera", "James Thomson", 1, "11-1, 11-4, 11-2", "13/09/2019")
+# match_data[2, ] <- list("James Thomson", "Nikola Surjanovic", 2, "11-9, 8-11, 11-8, 11-9 (1-11, 11-7)", "17/09/2019")
+# match_data[3, ] <- list("Dani Chu", "Peter Tea", 1, "11-2, 11-3, 11-5 (11-9)", "23/09/2019")
+# match_data[4, ] <- list("Dani Chu", "Nikola Surjanovic", 1, "11-6, 11-6, 11-5", "24/09/2019")
+# match_data[5, ] <- list("Dani Chu", "Nikola Surjanovic", 1, "11-7, 11-9", "24/09/2019")
+# match_data[6, ] <- list("Dani Chu", "Lucas Wu", 1, "11-2, 11-8", "24/09/2019")
+# match_data[7, ] <- list("Neil Faught", "Lucas Wu", 1, "11-7, 11-3, 11-5", "24/09/2019")
+# match_data[7, ] <- list("Neil Faught", "Lucas Wu", 2, "11-7", "24/09/2019")
+# match_data[8, ] <- list("Nikola Surjanovic", "Neil Faught", 1, "11-6", "24/09/2019")
+# match_data[9, ] <- list("Nikola Surjanovic", "Neil Faught", 2, "12-10", "24/09/2019")
+# match_data[10, ] <- list("Nikola Surjanovic", "Neil Faught", 2, "11-8", "24/09/2019")
+# match_data[11, ] <- list("Nikola Surjanovic", "Lucas Wu", 1, "11-7", "24/09/2019")
+# match_data[12, ] <- list("James Thomson", "Peter Tea", 1, "11-8, 11-8, 11-5", "03/10/2019")
+# match_data[13, ] <- list("James Thomson", "Renny Doig", 1, "11-1, 11-1, 11-1", "03/10/2019")
+# match_data[14, ] <- list("Matthew Reyers", "Nate Sandholtz", 1, "11-0, 11-5", "04/10/2019")
+# match_data[15, ] <- list("Harsha Perera", "James Thomson", 1, "11-7, 11-4", "04/10/2019")
+# match_data[16, ] <- list("Harsha Perera", "Matthew Reyers", 1, "11-7, 3-11, 11-2", "04/10/2019")
+# match_data[17, ] <- list("Harsha Perera", "Pulindu Ratnasekera", 1, "11-4, 11-3", "11/10/2019")
+# match_data[18, ] <- list("Harsha Perera", "Matthew Reyers", 1, "11-5, 9-11, 13-11", "11/10/2019")
+# match_data[19, ] <- list("Peter Tea", "Louis Arsenault-Mahjoubi", 1, "11-3, 11-5", "11/10/2019")
+# match_data[20, ] <- list("Peter Tea", "Renny Doig", 1, "11-2, 11-3", "11/10/2019")
+# match_data[21, ] <- list("Peter Tea", "Pulindu Ratnasekera", 1, "11-2, 11-6", "11/10/2019")
+# match_data[22, ] <- list("Harsha Perera", "Louis Arsenault-Mahjoubi", 1, "11-2, 11-0", "11/10/2019")
+# match_data[23, ] <- list("Harsha Perera", "Matthew Reyers", 1, "7-11, 11-0, 11-3", "25/10/2019")
+# match_data[24, ] <- list("Harsha Perera", "Peter Tea", 1, "11-2, 11-0", "25/10/2019")
+# match_data[25, ] <- list("Harsha Perera", "Nikola Surjanovic", 1, "11-1, 11-2", "25/10/2019")
+# match_data[26, ] <- list("Harsha Perera", "Louis Arsenault-Mahjoubi", 1, "11-2, 11-2", "25/10/2019")
+# match_data[27, ] <- list("Nikola Surjanovic", "Louis Arsenault-Mahjoubi", 1, "11-2, 11-2", "25/10/2019")
+# match_data[28, ] <- list("Nikola Surjanovic", "Matthew Reyers", 2, "11-5, 11-9", "25/10/2019")
+# match_data[29, ] <- list("Nikola Surjanovic", "Peter Tea", 1, "11-7 (?)", "25/10/2019")
+# match_data[30, ] <- list("Harsha Perera", "Dani Chu", 1, "11-0, 11-0", "30/10/2019")
+# match_data[31, ] <- list("Harsha Perera", "Nikola Surjanovic", 1, "11-7, 11-1", "30/10/2019")
+# match_data[32, ] <- list("Dani Chu", "Nikola Surjanovic", 1, "2-11, 11-4, 12-10", "30/10/2019")
+
+
+
+# Sort by date (newest to oldest)
+match_data$date <- as.Date(match_data$date, "%d/%m/%Y")
+match_data <- match_data %>% dplyr::arrange(desc(date))
+
+# Make sure that names are in lexicographic order and converted into factors
+inds <- match_data$player1 > match_data$player2
+x <- match_data[inds, 1]
+match_data[inds, 1] <- match_data[inds, 2]
+match_data[inds, 2] <- x
+match_data[inds, 3] <- ((match_data[inds, 3]) %% 2) + 1 # 1 --> 2, 2 --> 1
+rm(x, inds)
+
+active_players <- unique(c(match_data$player1, match_data$player2)) 
+
+match_data$player1 <- as.factor(match_data$player1)
+match_data$player2 <- as.factor(match_data$player2)
+match_data$player1 <- factor(match_data$player1, levels=active_players)
+match_data$player2 <- factor(match_data$player2, levels=active_players)
+
+
+
+h2h_data <- match_data %>% 
+  dplyr::group_by(player1, player2) %>%
+  dplyr::summarise(win1 = sum(winner==1), win2 = sum(winner==2))
+
+
+# Get Bradley-Terry rankings
+BT_model <- BTm(outcome = cbind(win1, win2), player1 = as.factor(player1), player2 = as.factor(player2), data=h2h_data,
+                refcat="Peter Tea")
+rank_data <- as.data.frame(BTabilities(BT_model))
+rank_data$Player <- rownames(rank_data)
+rownames(rank_data) <- 1:nrow(rank_data)
+rank_data[ ,1:3] <- rank_data[ ,c(3,1,2)]
+colnames(rank_data) <- c("Player", "Ability", "SE")
+rank_data <- rank_data %>% arrange(desc(Ability))
+rank_data <- cbind(1:nrow(rank_data), rank_data)
+colnames(rank_data)[1] <- "Rank"
+
+
+
+```
+
+## Information
+<!--Feel free to schedule your matches in this spreadsheet:
+https://docs.google.com/spreadsheets/d/1eZqthx1xoYoQdgz0ObpruLsJxnhOkfvPFAMSEB1w1Uw/edit?usp=sharing -->
+
+Rankings are based on the Bradley-Terry model. Point differentials have not been incorporated into the model (ie. it doesn't matter by how much you win). Feel free to contact any of the players below. In order for your match to show up on this list, please email me with the match score and "cc" your opponent.
+
+## Past Winners
+
+#### Fall 2019 - Harsha Perera
+
+## Current Standings (Based on Active Players)
+```{r, echo=FALSE}
+rank_data2 <- rank_data
+rank_data2[ ,3] <- rank_data2[ ,3] + 20
+kable(rank_data2[ ,-4])
+
+```
+
+## Match Data
+
+```{r, echo=FALSE}
+colnames(match_data) <- c("Player 1", "Player 2", "Winner", "Score", "Date")
+kable(match_data)
+```
+
+## All Players in the League
+
+```{r, echo=FALSE}
+player_data <- player_data %>% arrange(`Last Name`)
+kable(player_data)
+```
+
+

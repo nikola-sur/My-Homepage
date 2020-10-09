@@ -1,0 +1,2 @@
+AuthType CAS
+require sfu-user !stat-actsci-squash
